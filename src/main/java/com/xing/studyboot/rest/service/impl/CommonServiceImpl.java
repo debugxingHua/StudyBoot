@@ -1,6 +1,7 @@
 package com.xing.studyboot.rest.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,9 @@ public class CommonServiceImpl implements CommonService {
 	
 	@Autowired
 	private ApplicationContext applicationContext;
+	
+	@Value(value="${my.name}")
+	private String myName;
 
 	@Override
 	public String index() {
@@ -25,5 +29,11 @@ public class CommonServiceImpl implements CommonService {
 		System.out.println("CommonServiceImpl->记录操作日志，发布事件到应用");
 		applicationContext.publishEvent(new BusinessLogEvent(this, dto));
 		return "CommonServiceImpl.index";
+	}
+
+	@Override
+	public String getMyName() {
+		System.out.println("获取到application中配置的:myname="+myName);
+		return myName;
 	}
 }

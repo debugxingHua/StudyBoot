@@ -12,5 +12,11 @@ public interface CommonService {
 	 * @return
 	 */
 	String index();
+	
+	/**
+	 *  获取application中配置的名字
+	 * @return
+	 */
+	String getMyName();
 
 }

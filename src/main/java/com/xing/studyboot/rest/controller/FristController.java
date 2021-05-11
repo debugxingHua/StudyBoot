@@ -26,4 +26,9 @@ public class FristController {
 		commonService.index();
 		return "hello,frist Controller index";
 	}
+	
+	@RequestMapping("/getName")
+	public String getName() {
+		return "获取到application中配置的:myname->"+commonService.getMyName();
+	}
 }
