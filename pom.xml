@@ -1,21 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+	http://maven.apache.org/POM/4.0.0 
+	https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.4.5</version>
-		<relativePath/> <!-- lookup parent from repository -->
-	</parent>
 	<groupId>com.xing</groupId>
 	<artifactId>studyboot</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>studyboot</name>
 	<description>study project for Spring Boot</description>
 	<properties>
+		<app.name>studyBoot</app.name>
 		<java.version>1.8</java.version>
+		<start.class>com.xing.studyboot.StudybootApplication</start.class>
+		<resource.delimiter>@</resource.delimiter>
+	    <maven.compiler.source>${java.version}</maven.compiler.source>
+	    <maven.compiler.target>${java.version}</maven.compiler.target>
+	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
+	
+	<!--  声明SpringBoot版本  -->
+	<dependencyManagement>
+		<dependencies>
+			<!-- 如果要声明依赖使用特定版本，加到声明之前 -->
+			<!-- <dependency> 
+		        <groupId>org.springframework.boot</groupId> 
+		        <artifactId>spring-boot-starter-web</artifactId> 
+		        <version>2.0.0</version>
+		    </dependency>-->
+			<dependency>
+				<!-- Import dependency management from Spring Boot -->
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>2.4.5</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<!--   引入依赖   -->
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -26,6 +51,21 @@
 	        <groupId>org.springframework.boot</groupId> 
 	        <artifactId>spring-boot-starter-web</artifactId> 
 	    </dependency>
+	    
+	    <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools -->
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-devtools</artifactId>
+		    <scope>provided</scope>
+		</dependency>
+			    
+	    
+	    <!-- https://mvnrepository.com/artifact/org.assertj/assertj-core -->
+		<dependency>
+		    <groupId>org.assertj</groupId>
+		    <artifactId>assertj-core</artifactId>
+		    <scope>test</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -41,10 +81,37 @@
 	</dependencies>
 
 	<build>
+		<!-- 打好的包名 -->
+		<finalName>${app.name}</finalName>
 		<plugins>
 			<plugin>
+				<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-maven-plugin -->
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>2.4.5</version>
+				<executions>
+					<execution>
+						<!-- 目标是打成包含依赖的可执行包 -->
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<!-- 去除开发工具，加入这个后打好的包中lib下不会有devtools包 -->
+					<excludeDevtools>true</excludeDevtools>
+					<!-- 启动类项目中只设置一个自动会找到,但是声明 layout 后必须手动设置 -->
+					<mainClass>${start.class}</mainClass>
+					<!-- 
+					layout属性默认为由归档类型（jar或war）确定的值。可以使用以下布局：
+						JAR：常规的可执行JAR布局。
+						WAR：可执行的WAR布局。当将servlet部署在servlet容器中时，provided将放置依赖项WEB-INF/lib-provided以避免任何冲突war。
+						ZIP（别名为DIR）：类似于JAR使用的布局PropertiesLauncher。
+						NONE：捆绑所有依赖项和项目资源。不捆绑引导加载程序。
+					注意必须大写，用的是枚举类 比如 jar就报错了，得用JAR
+					 -->
+					<layout>ZIP</layout>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

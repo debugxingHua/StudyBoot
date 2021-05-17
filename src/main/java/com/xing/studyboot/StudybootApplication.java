@@ -2,10 +2,6 @@ package com.xing.studyboot;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.security.servlet.ApplicationContextRequestMatcher;
-import org.springframework.context.ApplicationListener;
-import org.springframework.stereotype.Component;
-
 import com.xing.studyboot.config.MyBanner;
 import com.xing.studyboot.listener.ApplicationContextRefreshedEventLister;
 import com.xing.studyboot.listener.ApplicationStartedEventListener;
