@@ -11,7 +11,7 @@
 	<name>studyboot</name>
 	<description>study project for Spring Boot</description>
 	<properties>
-		<app.name>studyBoot</app.name>
+		<app.name>studyboot</app.name>
 		<java.version>1.8</java.version>
 		<start.class>com.xing.studyboot.StudybootApplication</start.class>
 		<resource.delimiter>@</resource.delimiter>
@@ -57,6 +57,7 @@
 		    <groupId>org.springframework.boot</groupId>
 		    <artifactId>spring-boot-devtools</artifactId>
 		    <scope>provided</scope>
+		    <optional>true</optional>
 		</dependency>
 			    
 	    
@@ -74,16 +75,48 @@
 		</dependency>
 		
 		<dependency>
-		      <groupId>org.projectlombok</groupId>
-		       <artifactId>lombok</artifactId>
-		       <scope>provided</scope>
-		 </dependency>
+	        <groupId>org.projectlombok</groupId>
+	        <artifactId>lombok</artifactId>
+	        <scope>provided</scope>
+	    </dependency>
 	</dependencies>
+	
+	<!-- 如果使用里程碑或快照发行版，则还需要添加适当的pluginRepository元素 -->
+	<pluginRepositories>
+	    <pluginRepository>
+	        <id>spring-snapshots</id>
+	        <url>https://repo.spring.io/snapshot</url>
+	    </pluginRepository>
+	    <pluginRepository>
+	        <id>spring-milestones</id>
+	        <url>https://repo.spring.io/milestone</url>
+	    </pluginRepository>
+	</pluginRepositories>
 
 	<build>
 		<!-- 打好的包名 -->
 		<finalName>${app.name}</finalName>
 		<plugins>
+			<!-- 配置这个能打出一个没有重新打包的源包 
+				由于maven-jar-plugin和spring-boot-maven-plugin运行都处于同一阶段，
+				因此必须首先定义jar插件（以便在重新包装目标之前运行）
+				本插件用于指定本项目生成的jar包中的MANIFEST.MF文件中的配置，如Class-Path和Main-Class -->
+			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <classifier>source</classifier>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 			<plugin>
 				<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-maven-plugin -->
 				<groupId>org.springframework.boot</groupId>
@@ -91,16 +124,68 @@
 				<version>2.4.5</version>
 				<executions>
 					<execution>
+						<!-- 不配置默认就是 repackage  -->
+						<id>repackage</id>
 						<!-- 目标是打成包含依赖的可执行包 -->
 						<goals>
 							<goal>repackage</goal>
 						</goals>
+						<configuration>
+							<!-- 必填参数  
+							打包的目录路径                 默认 ${project.build.directory}  -->
+							<outputDirectory>${project.build.directory}</outputDirectory>
+							<!-- 以下皆是可选参数 
+							attach      boolean  true 
+							将重新打包的归档文件附加到要安装到本地Maven存储库中或部署到远程存储库中。
+							如果未配置分类器，它将替换普通的jar。
+							如果对aclassifier进行了配置，以使普通jar和重新包装的jar不同，则它将与普通jar一起连接。
+							当该属性设置false为时，将不会安装或部署重新打包的存档。 -->
+							<attach>true</attach>
+							<!-- 
+							classifier 无默认值  要添加到重新打包的归档中的分类器。
+							默认情况下，也就似乎表示为应用程序的模块时，repackage goals用重新打包的goals替换原始包。
+							但是如果您的模块被用作另一个模块的依赖项，您需要为重新打包的模块提供一个分类器。
+							原因是应用程序类被打包在BOOT-INF/class中，这样依赖模块就不能加载重新打包的jar类。
+							如果希望保留原始包并使用其他分类器附加重新包装的包，就启用并配置attach classifier 
+								如果没有给出，重新打包的可执行包会覆盖源包，也就是相当于没有分类。
+								如果给定了分类器，它还将用于确定要重新打包的源归档:
+								  如果已经存在具有该分类器的artifact，它将被用作源并被替换。
+								  如果不存在这样的artifact，主artifact将被用作源，重新打包的档案将作为补充artifact与该分类器连接。附加artifact允许将其部署到原始artifact旁边。 -->
+							<classifier>exec</classifier>
+							<!-- 输出时间戳，格式为ISO 8601（yyyy-MM-dd’T’HH:mm:ssXXX）或表示自该时期以来的秒数 默认${project.build.outputTimestamp} -->
+							<outputTimestamp>${project.build.outputTimestamp}</outputTimestamp>
+						</configuration>
 					</execution>
 				</executions>
 				<configuration>
-					<!-- 去除开发工具，加入这个后打好的包中lib下不会有devtools包 -->
+					<!-- 去除开发工具，加入这个后打好的包中lib下不会有devtools包 
+						属性：spring-boot.repackage.excludeDevtools -->
 					<excludeDevtools>true</excludeDevtools>
-					<!-- 启动类项目中只设置一个自动会找到,但是声明 layout 后必须手动设置 -->
+					<!-- 两种排除依赖项方法 ：
+						默认情况下，repackage和run目标都将包括provided项目中定义的任何依赖项。
+						Spring Boot项目应将provided依赖项视为运行应用程序所需的“容器”依赖项。
+						其中的某些依赖项可能根本不需要，应从可执行jar中排除。为了保持一致，它们在run应用程序时也不应出现。 -->
+					<!-- 1.排除特定的 groupId and artifactId 
+						要排除的artifact定义的集合。该Exclude元素定义强制性groupId和artifactId性质和可选classifier性。
+						属性：spring-boot.excludes-->
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+	        				<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+					<!-- 2.排除属于给定groupId的任何依赖。用逗号分隔的要排除的groupId名称列表（完全匹配）。属性：spring-boot.excludeGroupIds 
+					<excludeGroupIds>com.xing.test</excludeGroupIds>-->
+					<!-- 上面时排除 下面引入要包含的依赖定义的集合。 属性：spring-boot.includes
+					<includes>
+						<include>
+							<groupId>org.springframework.boot</groupId>
+							<artifactId>spring-boot-starter-test</artifactId>
+						</include>
+					</includes>-->
+					<!-- 包括系统范围的依赖项。  默认 false   -->
+					<includeSystemScope>false</includeSystemScope>
+					<!-- 主类的名称。如果未指定，将使用找到的第一个包含main方法的已编译类。声明 layout 后必须手动设置 -->
 					<mainClass>${start.class}</mainClass>
 					<!-- 
 					layout属性默认为由归档类型（jar或war）确定的值。可以使用以下布局：
@@ -111,9 +196,38 @@
 					注意必须大写，用的是枚举类 比如 jar就报错了，得用JAR
 					 -->
 					<layout>ZIP</layout>
+					<layers>
+						<!-- 禁用分层打包 false -->
+						<enabled>true</enabled>
+						<configuration>${project.basedir}/src/main/resources/layers.xml</configuration>
+					</layers>
+					<!-- 跳过执行。 默认 false 属性：spring-boot.repackage.skip 卧槽，跳过那肯定就不repackage了-->
+					<skip>false</skip>
+					<!-- 还有一些参数 ，不玩了。。。
+						embeddedLaunchScript     File 
+						如果完全可执行，嵌入式启动脚本将位于jar的前面。如果未指定，将使用“Spring Boot”默认脚本。
+						
+						embeddedLaunchScriptProperties     Properties
+						应该在嵌入式启动脚本中展开的属性。
+						
+						executable  默认 false
+						通过在jar前面添加一个启动脚本，为*nix机器创建一个完全可执行的jar。
+						目前，有些工具不接受这种格式，因此可能无法始终使用这种技术。
+						例如，jar -xf可能会无声无息地无法提取一个完全可执行的jar或war。
+						建议您仅在打算直接执行时启用此选项，而不是用java -jar运行它或将其部署到servlet容器中。
+						
+						layout LayoutType
+						存档的类型（与依赖关系在内部的布局方式相对应）。可能的值是JAR，WAR，ZIP，DIR，NONE。
+						默认为基于存档类型的猜测。属性：spring-boot.repackage.layout
+						
+						layoutFactory LayoutFactory
+						如果未设置显式布局，将用于创建可执行存档的布局工厂。第三方可以提供替代布局的实现。
+						
+						requiresUnpack List
+						为了运行，必须从fat jars中打开的库的列表。将每个库指定为具有<groupId>和<artifactId>的<dependency>，它们将在运行时被解包。
+ 					-->
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
-
 </project>

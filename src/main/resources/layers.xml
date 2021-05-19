@@ -1,0 +1,32 @@
+<layers xmlns="http://www.springframework.org/schema/boot/layers"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/boot/layers
+                          https://www.springframework.org/schema/boot/layers/layers-2.5.xsd">
+    <application>
+    	<!-- 声明 spring-boot-loader层的内容。 -->
+        <into layer="spring-boot-loader">
+            <include>org/springframework/boot/loader/**</include>
+        </into>
+        <!-- 声明 application层的所有剩余类和资源。 -->
+        <into layer="application" />
+    </application>
+    <dependencies>
+    	<!-- 声明的所有模块依赖项application.layer -->
+        <into layer="application">
+            <includeModuleDependencies />
+        </into>
+        <!-- 声明该snapshot-dependencies层的所有SNAPSHOT依赖项  -->
+        <into layer="snapshot-dependencies">
+            <include>*:*:*SNAPSHOT</include>
+        </into>
+        <!-- 要求保留该dependencies层的所有内容（在这种情况下，不是SNAPSHOT的任何依赖项）。 -->
+        <into layer="dependencies" />
+    </dependencies>
+    <!-- 定义<into>块的顺序通常与写入层的顺序不同。因此，必须始终包含<layerOrder>元素，并且必须覆盖这些<into>块引用的所有层。 -->
+    <layerOrder>
+        <layer>dependencies</layer>
+        <layer>spring-boot-loader</layer>
+        <layer>snapshot-dependencies</layer>
+        <layer>application</layer>
+    </layerOrder>
+</layers>
