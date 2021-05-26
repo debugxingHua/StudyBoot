@@ -24,11 +24,11 @@ public class FristController {
 	@RequestMapping("/index")
 	public String index() {
 		commonService.index();
-		return "hello,frist Controller index";
+		return "hello123456,frist Controller index";
 	}
 	
 	@RequestMapping("/getName")
 	public String getName() {
-		return "获取到application中配置的:myname->"+commonService.getMyName();
+		return "获取到application中配置的:myname is->"+commonService.getMyName();
 	}
 }

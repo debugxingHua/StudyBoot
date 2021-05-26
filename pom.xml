@@ -56,7 +56,6 @@
 		<dependency>
 		    <groupId>org.springframework.boot</groupId>
 		    <artifactId>spring-boot-devtools</artifactId>
-		    <scope>provided</scope>
 		    <optional>true</optional>
 		</dependency>
 			    
@@ -160,7 +159,7 @@
 				<configuration>
 					<!-- 去除开发工具，加入这个后打好的包中lib下不会有devtools包 
 						属性：spring-boot.repackage.excludeDevtools -->
-					<excludeDevtools>true</excludeDevtools>
+					<excludeDevtools>false</excludeDevtools>
 					<!-- 两种排除依赖项方法 ：
 						默认情况下，repackage和run目标都将包括provided项目中定义的任何依赖项。
 						Spring Boot项目应将provided依赖项视为运行应用程序所需的“容器”依赖项。
