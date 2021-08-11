@@ -31,4 +31,6 @@ public class FristController {
 	public String getName() {
 		return "获取到application中配置的:myname is->"+commonService.getMyName();
 	}
+	
+	
 }
