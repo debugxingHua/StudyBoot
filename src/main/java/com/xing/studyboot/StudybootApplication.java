@@ -2,12 +2,15 @@ package com.xing.studyboot;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import com.xing.studyboot.config.MyBanner;
-import com.xing.studyboot.listener.ApplicationContextRefreshedEventLister;
-import com.xing.studyboot.listener.ApplicationStartedEventListener;
-import com.xing.studyboot.listener.MyListener;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
 
-@SpringBootApplication
+import com.xing.studyboot.config.MyBanner;
+
+@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class,
+	    DataSourceTransactionManagerAutoConfiguration.class,
+	    JdbcTemplateAutoConfiguration.class})
 public class StudybootApplication {
 
 	public static void main(String[] args) {
