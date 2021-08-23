@@ -2,11 +2,13 @@ package com.xing.studyboot.rest.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import com.xing.studyboot.entity.dto.BusinessLogDto;
 import com.xing.studyboot.event.BusinessLogEvent;
+import com.xing.studyboot.rest.dao.CommonDao;
 import com.xing.studyboot.rest.service.CommonService;
 
 @Service
@@ -14,6 +16,8 @@ public class CommonServiceImpl implements CommonService {
 	
 	@Autowired
 	private ApplicationContext applicationContext;
+	@Autowired
+	CommonDao commonDao;
 	
 	@Value(value="${my.name}")
 	private String myName;
@@ -35,5 +39,14 @@ public class CommonServiceImpl implements CommonService {
 	public String getMyName() {
 		System.out.println("获取到application中配置的:myname="+myName);
 		return myName;
+	}
+
+	@Cacheable("sampleCacheTest")
+	@Override
+	public String getCache() {
+		System.out.println("调用getCache开始");
+		String res = commonDao.get();
+		System.out.println("调用getCache结束"+res);
+		return res;
 	}
 }

@@ -5,12 +5,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
+import org.springframework.cache.annotation.EnableCaching;
 
 import com.xing.studyboot.config.MyBanner;
 
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class,
 	    DataSourceTransactionManagerAutoConfiguration.class,
 	    JdbcTemplateAutoConfiguration.class})
+@EnableCaching
 public class StudybootApplication {
 
 	public static void main(String[] args) {

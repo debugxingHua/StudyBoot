@@ -18,5 +18,11 @@ public interface CommonService {
 	 * @return
 	 */
 	String getMyName();
+	
+	/**
+	 *  缓存测试
+	 * @return
+	 */
+	String getCache();
 
 }
