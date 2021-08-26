@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.xing.studyboot.config.MyBanner;
 
@@ -13,6 +14,7 @@ import com.xing.studyboot.config.MyBanner;
 	    DataSourceTransactionManagerAutoConfiguration.class,
 	    JdbcTemplateAutoConfiguration.class})
 @EnableCaching
+//@EnableScheduling//开启Spring Task定时
 public class StudybootApplication {
 
 	public static void main(String[] args) {
