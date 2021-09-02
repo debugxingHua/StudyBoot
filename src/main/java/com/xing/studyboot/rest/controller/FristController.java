@@ -19,8 +19,8 @@ public class FristController {
 	
 	@Autowired
 	private CommonService commonService;
-	@Autowired
-	Endpoint endpoint;
+//	@Autowired
+//	Endpoint endpoint;
 	
 	/**
 	 * index
@@ -37,10 +37,10 @@ public class FristController {
 		return "获取到application中配置的:myname is->"+commonService.getMyName();
 	}
 	
-	@RequestMapping("/endpoint")
-	public String testEndpoint() {
-		return endpoint.toString();
-	}
+//	@RequestMapping("/endpoint")
+//	public String testEndpoint() {
+//		return endpoint.toString();
+//	}
 	
 	
 }

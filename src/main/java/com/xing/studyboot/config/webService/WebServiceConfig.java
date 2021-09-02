@@ -13,12 +13,12 @@ public class WebServiceConfig {
 	 * 创建webSocket的 Endpoint
 	 * @return
 	 */
-	@Bean
-	public Endpoint getEndpoint() {				
-		MyService serviceImpl=new MyServiceImpl();
-		Endpoint publish = EndpointImpl.publish("http://localhost:8099/hello",serviceImpl);
-		System.out.println("发布服务成功...");
-		return publish;
-	}
+//	@Bean
+//	public Endpoint getEndpoint() {				
+//		MyService serviceImpl=new MyServiceImpl();
+//		Endpoint publish = EndpointImpl.publish("http://localhost:8099/hello",serviceImpl);
+//		System.out.println("发布服务成功...");
+//		return publish;
+//	}
 }
 
