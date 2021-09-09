@@ -3,7 +3,7 @@ package com.xing.studyboot.message;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class Consumer{
 
 	@JmsListener(destination = "qqq")    //queue名

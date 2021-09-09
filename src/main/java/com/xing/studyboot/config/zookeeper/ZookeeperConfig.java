@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
  * @author xing
  * @createTime
  */
-@Configuration
+//@Configuration
 public class ZookeeperConfig {
     private static final Logger logger = LoggerFactory.getLogger(ZookeeperConfig.class);
 
