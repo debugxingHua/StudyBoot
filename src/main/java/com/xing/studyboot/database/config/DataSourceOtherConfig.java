@@ -31,7 +31,7 @@ public class DataSourceOtherConfig {
 	@Primary
 	public DataSource aDataSource() {
 	  DataSourceProperties dataSourceProperties = aDataSourceProperties();
-	  System.out.println("数据源xh datasource: {}"+dataSourceProperties.getUrl());
+	  System.out.println("数据源xh datasource:->{}"+dataSourceProperties.getUrl());
 	  return dataSourceProperties.initializeDataSourceBuilder().build();
 	}
 	/**
