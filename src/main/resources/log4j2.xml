@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="info" >
+  <Properties>
+    <Property name="log_root" value="D:\logs"/>
+    <Property name="today" value="${date:yyyy-MM-dd}"/>
+    <Property name="app_name" value="studyBoot"/>
+    <property name="log_level">INFO</property>
+    <property name="log_interval">3600</property>
+    <property name="log_size">50 MB</property>
+    <property name="log_del_time">7d</property>
+    <Property name="log_pattern">[%d{MM:dd HH:mm:ss.SSS}] [%level] [%logger{36}] - %msg%n</Property>
+    <property name="log_pattern2">%d{yyyy-MM-dd HH:mm:ss.SSS},%X{SOFA-TraceId},%X{SOFA-SpanId},%t,%r,%-5p,%logger{50} - %m%n%throwable</property>
+  </Properties>
+ 
+  <Appenders>
+    <Console name="console_out" target="SYSTEM_OUT">
+      <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch） -->
+      <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
+      <PatternLayout pattern="${log_pattern}"/>
+    </Console>
+    <Console name="console_err" target="SYSTEM_ERR">
+     	<ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
+     	<PatternLayout pattern="${log_pattern}"/>
+    </Console>
+ 
+    <!--debug(包含)到error(不含)级别日志文件输出， 1天或者满200M覆盖一次-->
+    <RollingFile name="debug_appender" fileName="${log_root}/${app_name}/${today}/debug.log"
+      filePattern="${log_root}/${app_name}/${today}/debug_%i.log.%d{yyyy-MM-dd}">
+      <!-- 过滤器 -->
+      <Filters>
+        <!-- 限制日志级别在debug及以上在error以下 注释掉了顶点限制，打印debug及以上所有-->
+        <ThresholdFilter level="debug"/>
+        <!-- <ThresholdFilter level="error" onMatch="DENY" onMismatch="NEUTRAL"/>-->
+      </Filters>
+      <!-- 日志格式 -->
+      <PatternLayout pattern="${log_pattern}"/>
+      <!-- 策略 -->
+      <Policies>
+      	<!-- TimeBasedTriggeringPolicy 基于时间的滚动策略，
+      		interval属性用来指定多久滚动一次，默认是1hour。
+      		modulate=true用来调整时间：比如现在是早上3am，interval是4，那么第一次滚动是在4am，接着是8am，12am...而不是7am.-->
+		<TimeBasedTriggeringPolicy interval="24" modulate="true"/>
+		<!-- 文件大小 SizeBasedTriggeringPolicy 基于指定文件大小的滚动策略，
+			size属性用来定义每个日志文件的大小.-->
+		<SizeBasedTriggeringPolicy size="200 MB"/>
+      </Policies>
+    </RollingFile>
+ 
+	<!-- error(包含)级别以上日志文件输出 -->
+	<RollingFile name="error_appender" fileName="${log_root}/${app_name}/${today}/error.log"
+	  filePattern="${log_root}/${app_name}/${today}/error_%i.log.%d{yyyy-MM-dd}">
+	  <!-- 过滤器 -->
+	  <Filters>
+	    <!-- 限制日志级别在error及以上 -->
+	    <ThresholdFilter level="error"/>
+	  </Filters>
+	  <!-- 日志格式 -->
+	  <PatternLayout pattern="${log_pattern}"/>
+	  <Policies>
+	    <!-- 每隔一天转存 -->
+	    <TimeBasedTriggeringPolicy interval="24" modulate="true"/>
+	    <!-- 文件大小 -->
+	    <SizeBasedTriggeringPolicy size="200 MB"/>
+	  </Policies>
+	</RollingFile>
+    
+    <!--业务日常节点日志 -->
+    <RollingRandomAccessFile name="all_appender" 
+    	fileName="${log_root}/${app_name}/all/all.log" 
+    	filePattern="${log_root}/${app_name}/all/all.log.%d{yyyy-MM-dd_HH-mm-ss}.%i"
+        append="true">
+        <PatternLayout pattern="${log_pattern2}" charset="UTF-8"/>
+        <Policies>
+            <TimeBasedTriggeringPolicy interval="${log_interval}"/>
+            <SizeBasedTriggeringPolicy size="${log_size}"/>
+        </Policies>
+
+        <DefaultRolloverStrategy>
+            <Delete basePath="${log_root}/${app_name}/all" maxDepth="1">
+                <IfFileName glob="*.log"/>
+                <IfLastModified age="${log_del_time}"/>
+            </Delete>
+        </DefaultRolloverStrategy>
+    </RollingRandomAccessFile>
+    <!--业务error节点日志 -->
+    <RollingRandomAccessFile name="all_error_appender" 
+    	fileName="${log_root}/${app_name}/all/all_error.log" 
+    	filePattern="${log_root}/${app_name}/all/all_error.log.%d{yyyy-MM-dd_HH-mm-ss}.%i"
+        append="true">
+        <PatternLayout pattern="${log_pattern2}" charset="UTF-8"/>
+        <ThresholdFilter level="error"/>
+        <Policies>
+            <TimeBasedTriggeringPolicy interval="${log_interval}"/>
+            <SizeBasedTriggeringPolicy size="${log_size}"/>
+        </Policies>
+        <DefaultRolloverStrategy>
+            <Delete basePath="${log_root}/${app_name}/all" maxDepth="1">
+                <IfFileName glob="*.log"/>
+                <IfLastModified age="${log_del_time}"/>
+            </Delete>
+        </DefaultRolloverStrategy>
+    </RollingRandomAccessFile>
+    <!--打印节点定义：交互外部系统日志-->
+	<RollingRandomAccessFile name="external_apperder"
+	                         fileName="${log_root}/${app_name}/all/external.log"
+	                         filePattern="${log_root}/${app_name}/all/external.log.%d{yyyy-MM-dd_HH-mm-ss}.%i"
+	                         append="true">
+	    <PatternLayout pattern="${log_pattern2}" charset="UTF-8"/>
+	    <Policies>
+	        <TimeBasedTriggeringPolicy interval="${log_interval}"/>
+	        <SizeBasedTriggeringPolicy size="${log_size}"/>
+	    </Policies>
+	    <DefaultRolloverStrategy>
+	        <Delete basePath="${log_root}/${app_name}/all" maxDepth="1">
+	            <IfFileName glob="${app_name}-integration.log.*"/>
+	            <IfLastModified age="${log_del_time}"/>
+	        </Delete>
+	    </DefaultRolloverStrategy>
+	</RollingRandomAccessFile>
+
+  </Appenders>
+  <Loggers>
+    <Root level="info">
+      <AppenderRef ref="console_out"/>
+      <AppenderRef ref="console_err"/>
+      <AppenderRef ref="debug_appender"/>
+      <AppenderRef ref="error_appender"/>
+      <AppenderRef ref="all_appender"/>
+      <AppenderRef ref="all_error_appender"/>
+      <AppenderRef ref="external_apperder"/>
+    </Root>
+    <!-- 只输出错误的日志 -->
+ 	<Logger name="log_error" additivity="false" level="error">
+        <AppenderRef ref="console_out"/>
+        <AppenderRef ref="error_appender"/>
+        <AppenderRef ref="all_error_appender"/>
+    </Logger>
+    <!-- 只输出交互外部的日志 -->
+ 	<Logger name="log_error" additivity="false" level="info">
+        <AppenderRef ref="external_apperder"/>
+    </Logger>
+    <!-- 异步输出到文件 -->
+    <AsyncLogger name="com.xing" includeLocation="false" additivity="false" level="debug">
+    	<AppenderRef ref="all_appender"/>
+        <AppenderRef ref="all_error_appender"/>
+    </AsyncLogger>
+  </Loggers>
+</Configuration>
