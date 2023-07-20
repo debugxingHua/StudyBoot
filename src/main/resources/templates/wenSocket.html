@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>聊天室</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="stylesheet" href="./css/layui.css"  media="all">
+</head>
+<body>
+  <div class="layui-row">
+    <div class="layui-col-md12">
+      <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;text-align: center;">
+        <legend>办事处聊天室</legend>
+      </fieldset>
+    </div>
+  </div>
+  <!-- 用户上下线 -->
+  <div style="width: 95%;text-align: center;margin: 10px auto;border: 1px #999 solid;padding: 2px 20px 10px 20px;">
+    <div class="layui-row" style="width: 95%;text-align: center;margin: 10px auto;padding: 2px 20px 10px 20px;">
+        <form class="layui-form" id="user-form" style="margin: 10px auto;" onsubmit="return false;">
+          <div class="layui-row">
+            <!-- traceId -->
+            <div class="layui-col-md6">
+              <div class="layui-form-item">
+                <label class="layui-form-label">用户名:</label>
+                <div class="layui-input-block">
+                  <input type="text" name="userId" class="layui-input" id="userId" placeholder="请输入用户名" autocomplete="off" value=""  maxlength="10">
+                </div>
+              </div>
+            </div>
+            <div class="layui-col-md2">
+              <button class="layui-btn" id="inline">上线</button>
+              <button class="layui-btn" id="outline" style="display:none">下线</button>
+            </div>
+          </div>
+        </form>
+    </div>
+    <!-- 当前状态 -->
+    <div class="layui-row" style="width: 95%;text-align: center;margin: 10px auto;">
+        <span id="lineStatus">当前状态【 <span style="color: red;">离线 </span>】</span>
+    </div>
+    <div class="layui-row" style="width: 95%;height: 300px;border: 1px #999 solid;">
+        <div id="messageContainer" style="text-align: left;max-height: 200px;overflow-y: auto;"></div>
+    </div>
+    <div class="layui-row" style="width: 95%;text-align: center;margin: 10px auto;">
+      <!-- 发送消息 -->
+      <form class="layui-form" id="message-form" onsubmit="return false;">
+        <div class="layui-row">
+          <div class="layui-col-md9">
+            <div class="layui-form-item">
+              <label class="layui-form-label">我要说:</label>
+              <div class="layui-input-block">
+                <input type="text" name="message" class="layui-input" id="message-input" placeholder="请输入" autocomplete="off" value="">
+              </div>
+            </div>
+          </div>
+          <div class="layui-col-md3">
+            <button class="layui-btn" id="send">发送</button>
+          </div>
+        </div>
+    </form>
+    </div>
+  </div>
+<script src="./layui.js" charset="utf-8"></script>
+<!-- 上线下线 -->
+<script>
+  let socketOpen = "";
+  var messageContainer = document.getElementById("messageContainer");
+  var messageInput = document.getElementById("message-input");
+  var inline = document.getElementById("inline");
+  var outline = document.getElementById("outline");
+  var user = document.getElementById("userId");
+  layui.use(["jquery"], function () {
+      var $ = layui.jquery;
+      // 上线
+      $("#inline").on("click", function () {
+          var userId = user.value;
+          // console.log("上线用户:"+userId);
+          if(userId ===""){
+            alert("好名都让狗起了?我给你请一个");
+            var xings = "赵钱孙李周吴郑王胥侯张";
+            var chars = "军队和房价开始打飞机咯还是尽快恢复可见老师的四代机离开洒家分厘卡设计了看见过日俄进入佛i期间九二五零科技切勿金佛i吉林省克己复礼就类似的经费管理二极管哦请假哦";
+            var xing = xings.charAt(Math.floor(Math.random() * xings.length));
+            var ming = chars.charAt(Math.floor(Math.random() * chars.length))+chars.charAt(Math.floor(Math.random() * chars.length));
+            user.value = xing+ming;
+            userId = user.value;
+          }
+          var socket = new WebSocket("ws://10.207.113.96:8080/websocket/"+userId);
+          // 连接打开时的回调函数
+          socket.onopen = function() {
+              // console.log("连接打开啦");
+              socketOpen = socket;
+              lineStatus.innerHTML = "<p>当前状态【 <span style='color: blue;'>在线 </span>】</p>";
+              outline.style.display = "block"; // 切换为显示状态
+              inline.style.display = "none"; // 切换为隐藏状态
+              user.disabled = true;
+          };
+
+          // 接收到消息时的回调函数
+          socket.onmessage = function(event) {
+            // console.log(event);
+            var receivedMessage = event.data;
+            messageContainer.innerHTML += "<p>" + receivedMessage + "</p>";
+            var element = document.getElementById("messageContainer");
+            element.scrollTop = element.scrollHeight;
+          };
+
+          // 连接关闭时的回调函数
+          socket.onclose = function(event) {
+            // console.log(event);
+            lineStatus.innerHTML = "<p>当前状态【 <span style='color: red;'>离线</span> 】</p>";
+            messageContainer.innerHTML = "";
+          };
+
+          // 连接出错时的回调函数
+          socket.onerror = function(error) {
+            alert("服务器崩溃了，快去联系软通第一帅！");
+            console.error("WebSocket连接错误: " + error);
+          };
+      });
+      // 下线
+      $("#outline").on("click", function () {
+          // console.log("下线");
+          socketOpen.close();
+          inline.style.display = "block"; // 切换为显示状态
+          outline.style.display = "none"; // 切换为隐藏状态
+          user.disabled = false;
+      });
+      // 发送消息
+      $("#send").on("click", function () {
+        if(socketOpen === ""){
+          alert("先起个名上线");
+          return false;
+        }
+        var message = messageInput.value;
+        if(message===""){
+          alert("你说点啥啊");
+          return false;
+        }
+        if(message.length>50){
+          alert("最多让你说50个字");
+          return false;
+        }
+        socketOpen.send(message);
+        messageInput.value = "";
+      });
+  });
+</script>
+</body>
+</html>
